@@ -1,0 +1,45 @@
+city_name,matched_city,state
+Delhi,Delhi,Delhi
+Bangalore,Bangalore,Karnataka
+Gurugram,Gurugram,Haryana
+Hyderabad,Hyderabad,Uttar Pradesh
+Jaipur,Jaipur,Rajasthan
+Ghaziabad,Ghaziabad,Uttar Pradesh
+Faridabad,Faridabad,Haryana
+Mumbai,Mumbai,Maharashtra
+Kolkata,Kolkata,West Bengal
+Maldah,,
+Sangrur,Sangrur,Punjab
+Paschim Medinipur,,
+Chandigarh,Chandigarh,Chandigarh *
+Bathinda,Bathinda,Punjab
+Muzaffarnagar,Muzaffarnagar,Uttar Pradesh
+Noida,Noida,Uttar Pradesh
+Jammu,Jammu,Jammu & Kashmir
+Barddhaman,Barddhaman,West Bengal
+Aurangabad,Aurangabad,West Bengal
+Amritsar,Amritsar,Punjab
+Thane,Thane,Maharashtra
+Pune,Pune,Maharashtra
+Ajmer,Ajmer,Rajasthan
+Kaithal,Kaithal,Haryana
+Bawal,Bawal,Haryana
+Palwal,Palwal,Haryana
+Yamunanagar,Yamunanagar,Haryana
+Moradabad,Moradabad,Uttar Pradesh
+Dehradun,Dehradun,Uttaranchal
+Mohali,Mohali,Punjab
+Ahmadabad,Ahmedabad,Gujarat
+Borivali,,
+Hisar,Hisar,Haryana
+Karimnagar,Karimnagar,Andhra Pradesh
+Nainital,Nainital,Uttaranchal
+Wanaparthy,Wanaparthi,Andhra Pradesh
+Ludhiana,Ludhiana,Punjab
+Narayanpet,Narayanpet,Andhra Pradesh
+Chennai,Chennai,Tamil Nadu
+Dewas,Dewas,Madhya Pradesh
+Warangal Urban,,
+Hassan,Hassan,Karnataka
+Rangareddy,Sangareddy,Andhra Pradesh
+Jalandhar,Jalandhar,Punjab
