@@ -5,9 +5,10 @@ from car_utils import (
     create_type_column,
     recommend_cars_with_type_strategy,
     recommend_cars_by_price,
-    recommend_cars_by_same_variant,
-    filter_same_state  # for state-based filtering
+    recommend_cars_by_same_model,
+    filter_same_state
 )
+from llm import LLM  # Make sure this is properly imported
 
 # ---------- Streamlit Setup ----------
 st.set_page_config(page_title="Car Recommendation App", layout="centered")
@@ -18,14 +19,23 @@ st.write("Compare your selected car with better options based on feature score, 
 @st.cache_data
 def load_data():
     try:
-        df = preprocess_data("Recommendation_data.csv")
+        df, yes_no_cols = preprocess_data("Recommendation_data.csv")
         df = create_type_column(df)
-        return df
+        return df, yes_no_cols
     except FileNotFoundError:
         st.error("'Recommendation_data.csv' not found in your project folder.")
-        return None
+        return None, None
+    except Exception as e:
+        st.error(f"Error loading data: {str(e)}")
+        return None, None
 
-df = load_data()
+df, yes_no_cols = load_data()
+
+# ---------- Session State for Recommendations ----------
+if 'recommendations' not in st.session_state:
+    st.session_state.recommendations = None
+if 'refined_summary' not in st.session_state:
+    st.session_state.refined_summary = None
 
 # ---------- UI: Car Selection ----------
 if df is not None:
@@ -70,27 +80,60 @@ if df is not None:
 
     # ---------- Recommendation Button ----------
     if st.button("Show Recommendations"):
+        st.session_state.recommendations = None
+        st.session_state.refined_summary = None
+        
         st.success(f"Selected Car: {selected_car['Make']} {selected_car['Model']} {selected_car['Variant']}")
 
         # Filter data to same-state cars
-        state_filtered_df = filter_same_state(df, selected_car['City'])
+        state_filtered_df, message = filter_same_state(df, selected_car['City'])
+        if message:
+            st.info(message)
 
         # ---------- Strategy Execution ----------
-        if strategy == "Type-Based (Body Style & Seating)":
-            st.markdown("Recommendations Based on Type")
-            recommend_cars_with_type_strategy(state_filtered_df, selected_car)
+        with st.spinner("Generating recommendations..."):
+            try:
+                if strategy == "Type-Based (Body Style & Seating)":
+                    st.markdown("### Recommendations Based on Type")
+                    recommendations = recommend_cars_with_type_strategy(state_filtered_df, selected_car)
+                
+                elif strategy == "Price-Based (±5% Range)":
+                    st.markdown("### Recommendations Within Price Range")
+                    recommendations = recommend_cars_by_price(state_filtered_df, selected_car)
+                
+                elif strategy == "Same Model (Better Variant)":
+                    st.markdown("### Better Cars in Same Variant")
+                    recommendations = recommend_cars_by_same_model(
+                        state_filtered_df, selected_car, yes_no_cols=yes_no_cols
+                    )
+                
+                # Store recommendations in session state
+                st.session_state.recommendations = recommendations
+                st.write(recommendations)
+                
+            except Exception as e:
+                st.error(f"Error generating recommendations: {str(e)}")
+                st.stop()
 
-        elif strategy == "Price-Based (±5% Range)":
-            st.markdown("Recommendations Within Price Range")
-            recommend_cars_by_price(state_filtered_df, selected_car)
-
-        elif strategy == "Same Variant (Better Feature Score)":
-            st.markdown("Better Cars in Same Variant")
-            yes_no_cols = [
-                'Air Conditioner Status', 'Ventilated Seats Status', 'Power Steering',
-                'NCAP Tested', 'Automatic Transmission'
-            ]
-            recommend_cars_by_same_variant(state_filtered_df, selected_car, yes_no_cols=yes_no_cols)
+    # Display recommendations if they exist
+    if st.session_state.recommendations:
+        st.markdown("---")
+        
+        # Refinement checkbox
+        refine_checkbox = st.checkbox("Give refined summary using AI", key="refine_checkbox")
+        
+        if refine_checkbox:
+            if not st.session_state.refined_summary:
+                with st.spinner("Generating refined summary..."):
+                    try:
+                        st.session_state.refined_summary = LLM(st.session_state.recommendations)
+                    except Exception as e:
+                        st.error(f"Error generating refined summary: {str(e)}")
+                        st.stop()
+            
+            if st.session_state.refined_summary:
+                st.markdown("### Refined Comparison")
+                st.markdown(st.session_state.refined_summary)
 
 else:
     st.stop()
